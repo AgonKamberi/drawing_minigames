@@ -1,0 +1,82 @@
+body{
+    overflow: hidden;
+    background: linear-gradient(200deg,rgb(30, 166, 159) 0%,rgb(67, 80, 200) 100%) no-repeat center center fixed;
+    background-size: cover;
+    font-family: Century Gothic;
+}
+.container {
+    max-width: 60%;
+    margin-top: 10%;
+    border-radius: 12px;
+    border: 4px rgba(29,29,27,.15) solid;
+    box-shadow: inset 0px 2px 0px 0px rgb(255 255 255 / 15%), 0px 3px 0px 0px rgb(255 255 255 / 15%);
+}
+.header{
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    color: white;
+    font-size: 60px;
+    font-weight: bold;
+}
+.main-part {
+    width: 60%;
+    margin-bottom: 3%;
+}
+.tutorial{
+    text-align: center;
+    margin-bottom: 3%;
+}
+.account{
+    background-color: rgba(80,24,81,.25);
+    border-radius: 0 0 12px;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 15%;
+}
+.tutorial {
+    width: 40%;
+    border: 4px rgba(29,29,27,.15) solid;
+    border-radius: 12px;
+}
+.split-container {
+    display: flex;
+    gap: 20px;
+}
+.switch-buttons{
+    display: flex;
+    flex-direction: row;
+}
+.switch-buttons button{
+    background-color: rgba(80,24,81,.25);
+    border: none;
+    width: 50%;
+}
+.guestButton .loginButton{
+    size: 0.9;
+}
+.guest, .login, .register {
+    display: none;
+}
+.guest, .login, .register input{
+    width: 50%;
+}
+.guest.active{
+    display: block;
+}
+.login.active {
+    display: flex;
+    flex-direction: column;
+}
+.register.active {
+    display: flex;
+    flex-direction: column;
+}
+.aLinks{
+    cursor: pointer;
+}
+.tutorial h5{
+    font-size: 60px;
+}
