@@ -7,7 +7,40 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-mQ93RiYQRXjYvWf0FRCXU9MQzw1+MZjlvB+qd/CZT5+nRG/PaXjkge/X3KA53PtZ" crossorigin="anonymous">
 </head>
 <body>
-    
+    <div class="container">
+        <div class="switchButtons">
+            <button onclick="enableGuest()">Guest</button>
+            <button onclick="enableLogin()">Login</button>
+        </div>
+        <div class="guest">
+            <input type="text" name="username">
+        </div>
+        <div class="account">
+            <div class="login">
+                <input type="text" name="username">
+                <input type="password" name="password">
+                <button>Login</button>
+                <a onclick="enableRegister()">Don't have an account!</a>
+            </div>
+            <div class="register">
+                <input type="text" name="username">
+                <input type="email" name="email">
+                <input type="password" name="password">
+                <button>Register</button>
+                <a onclick="enableLogin()">Already have an account!</a>
+            </div>
+        </div>
+        <div>
+            <h1>Tutorial:</h1>
+            <div id="tutorialIcon">
+                <i class="fas fa-pencil-ruler"></i>
+            </div>
+            <p>Draw and play with friends</p>
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/392cdd91ff.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha384-G/z/Nsz7hx/Zj1CmzngzG7APZj+MLZ7JdHY9VoIB7JXNCg8l7TzzPd/OVYe6xHRR" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HoMj6YYZvX+DeZ+qRSb1wOpnhaB5XZWKnpFtb/Gj2XWciv5d3XxU4hxD22dQ7R3Y" crossorigin="anonymous"></script>
 </body>
 </html>
