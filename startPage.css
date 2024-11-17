@@ -1,3 +1,6 @@
+*{
+    user-select: none;
+}
 body{
     overflow: hidden;
     background: linear-gradient(200deg,rgb(30, 166, 159) 0%,rgb(67, 80, 200) 100%) no-repeat center center fixed;
@@ -209,5 +212,4 @@ body{
     left: 5%;
     width: 90%;
     height: 90%;
-    user-select: none;
 }
