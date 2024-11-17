@@ -17,23 +17,34 @@
         <div class="split-container">
             <div class="main-part">
                 <div class="switch-buttons">
-                    <button class="guestButton" onclick="enableGuest()">Guest</button>
-                    <button class="loginButton" onclick="enableLogin()">Login</button>
+                    <button class="guestButton active" onclick="enableGuest()">Guest</button>
+                    <button class="loginButton " onclick="enableLogin()">Log in</button>
                 </div>
                 <div class="account">
                     <div class="guest active">
-                        <input type="text" placeholder="Username">
+                        <div class="holder">
+                            <div class="iconSelectorHolder">
+                                <div class="iconHolder">
+                                    <i class="fas fa-redo-alt fa-rotate-180" onclick="changeIcon()" id="redoIcon"></i>
+                                    <img src="" class="icon" id="faceIcon">
+                                </div>
+                            </div>
+                            <div class="inputHolder">
+                                <p>Choose name and avatar to start!</p>
+                                <input type="text" placeholder="Username">
+                            </div>
+                        </div>
                         <button class="startButton">Start</button>
                     </div>
                     <div class="login">
-                        <h5>Login</h5>
+                        <h5 class="typeText">Login</h5>
                         <input type="text" placeholder="Username">
                         <input type="password" placeholder="Password">
                         <button class="startButton">Start</button>
                         <a class="aLinks" onclick="enableRegister()">Don't have an account? Sign up!</a>
                     </div>
                     <div class="register">
-                        <h5>Register</h5>
+                        <h5 class="typeText">Register</h5>
                         <input type="text" placeholder="Username">
                         <input type="email" placeholder="Email">
                         <input type="password" placeholder="Password">
@@ -43,8 +54,9 @@
                 </div>
             </div>
             <div class="tutorial">
-                <h5>Tutorial</h5>
-                <p>Learn how to use the platform with step-by-step guides and tips.</p>
+                <h5>TUTORIAL</h5>
+                <i class="fas fa-pencil-ruler"></i>
+                <p>Play with your friends and have fun by clicking the start button after choosing you avatar or logging in.</p>
             </div>
         </div>
     </div>
