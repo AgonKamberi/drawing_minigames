@@ -1,0 +1,10 @@
+body{
+    overflow: hidden;
+    background: linear-gradient(200deg,rgb(53, 166, 30) 0%,rgb(67, 180, 200) 100%) no-repeat center center fixed;
+    background-size: cover;
+    font-family: Century Gothic;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
