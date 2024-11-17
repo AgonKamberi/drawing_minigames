@@ -187,7 +187,8 @@ body{
     transform: scale(1.3);
 }
 .iconHolder{
-    background-color: rgba(0, 255, 213, 0.644);
+    background: linear-gradient(200deg,rgba(0, 255, 213, 0.747) 0%,rgba(71, 202, 211, 0.747) 100%) no-repeat center center fixed;
+    opacity: 1;
     width: 100px;
     height: 100px;
     transform: scale(2);
