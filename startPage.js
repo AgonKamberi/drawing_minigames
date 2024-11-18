@@ -62,7 +62,9 @@ function startLogin(){
   })
   .then(response => response.text())
   .then(data => {
-      console.log(data);
+    if(data.loggedIn){
+      window.location.href = "lobby.html";
+    }
   })
   .catch(error => console.error("Error:", error));
 }
@@ -85,7 +87,9 @@ function startRegister(){
   })
   .then(response => response.text())
   .then(data => {
-      console.log(data);
+    if(data.created){
+      window.location.href = "lobby.html";
+    }
   })
   .catch(error => console.error("Error:", error));
 }
