@@ -57,10 +57,11 @@ function startLogin(){
   formData.append("password", password);
   
   fetch("http://localhost/drawing_minigames_be/login.php", {
-      method: "POST",
-      body: formData
+    method: "POST",
+    body: formData,
+    credentials: 'include'
   })
-  .then(response => response.text())
+  .then(response => response.json())
   .then(data => {
     if(data.loggedIn){
       window.location.href = "lobby.html";
