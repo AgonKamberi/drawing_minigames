@@ -31,24 +31,24 @@
                             </div>
                             <div class="inputHolder">
                                 <p>Choose name and avatar to start!</p>
-                                <input type="text" placeholder="Username" id="username">
+                                <input type="text" placeholder="Username" id="guestUsername">
                             </div>
                         </div>
                         <button class="startButton" onclick="startGuest()">Start</button>
                     </div>
                     <div class="login">
                         <h5 class="typeText">Login</h5>
-                        <input type="text" placeholder="Username">
-                        <input type="password" placeholder="Password">
-                        <button class="startButton">Start</button>
+                        <input type="text" placeholder="Username" id="loginUsername">
+                        <input type="password" placeholder="Password" id="loginPassword">
+                        <button class="startButton" onclick="startLogin()">Start</button>
                         <a class="aLinks" onclick="enableRegister()">Don't have an account? Sign up!</a>
                     </div>
                     <div class="register">
                         <h5 class="typeText">Register</h5>
-                        <input type="text" placeholder="Username">
-                        <input type="email" placeholder="Email">
-                        <input type="password" placeholder="Password">
-                        <button class="startButton">Start</button>
+                        <input type="text" placeholder="Username" id="registerUsername">
+                        <input type="email" placeholder="Email" id="registerEmail">
+                        <input type="password" placeholder="Password" id="registerPassword">
+                        <button class="startButton"  onclick="startRegister()">Start</button>
                         <a class="aLinks" onclick="enableLogin()">Already have an account? Log in!</a>
                     </div>
                 </div>

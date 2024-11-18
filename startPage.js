@@ -41,8 +41,51 @@ function changeIcon(){
 }
 
 function startGuest(){
-  var username = document.getElementById("username").value;
+  var username = document.getElementById("guestUsername").value;
   sessionStorage.setItem("username", username);
   sessionStorage.setItem("icon", images[faceCount]);
   window.location.href = "lobby.html";
+}
+
+function startLogin(){
+  var username = document.getElementById("loginUsername").value;
+  var password = document.getElementById("loginPassword").value;
+
+  var formData = new FormData();
+
+  formData.append("username", username);
+  formData.append("password", password);
+  
+  fetch("http://localhost/drawing_minigames_be/login.php", {
+      method: "POST",
+      body: formData
+  })
+  .then(response => response.text())
+  .then(data => {
+      console.log(data);
+  })
+  .catch(error => console.error("Error:", error));
+}
+
+function startRegister(){
+  var username = document.getElementById("registerUsername").value;
+  var email = document.getElementById("registerEmail").value;
+  var password = document.getElementById("registerPassword").value;
+
+  var formData = new FormData();
+
+  formData.append("username", username);
+  formData.append("email", email);
+  formData.append("password", password);
+  formData.append("icon", "grin-squint-tears-regular");
+  
+  fetch("http://localhost/drawing_minigames_be/signup.php", {
+      method: "POST",
+      body: formData
+  })
+  .then(response => response.text())
+  .then(data => {
+      console.log(data);
+  })
+  .catch(error => console.error("Error:", error));
 }
