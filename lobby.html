@@ -11,6 +11,32 @@
 <body>
     <section></section>
 
+    <div class="container">
+        <div class="header">
+            <p>Drawing Minigames</p>
+        </div>
+        <div class="split-container">
+            <div class="online-part">
+                <div class="switch-buttons">
+                    <button id="lobbyButton" class="lobbyButton active" onclick="enableLobby()">Lobby</button>
+                    <button id="onlineButton" class="onlineButton " onclick="enableOnline()">Online</button>
+                </div>
+                <div class="second-main-part">
+                    <div class="lobby" id="lobby"></div>
+                </div>
+            </div>
+            <div class="games-part">
+                <div class="switch-buttons">
+                    <button id="chooseGamemode" class="chooseGamemode active" onclick="enableGameModes()">Choose Gamemode</button>
+                    <button id="chooseIcon" class="chooseIcon " onclick="enableIconPicker()">Customize Icon</button>
+                </div>
+                <div class="second-main-part">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
     <script src="background.js"></script>
     <script src="lobby.js"></script>

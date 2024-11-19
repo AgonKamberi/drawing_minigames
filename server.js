@@ -13,6 +13,7 @@ const io = require('socket.io')(server, {
 });
 
 let connectedClients = [];
+let allLobbys = [];
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -23,6 +24,9 @@ io.on('connection', (socket) => {
     const { username, icon } = userDetails;
     
     const userExists = connectedClients.some(user => user.username === username);
+    const lobbyUserExists = allLobbys.find(lobby => 
+      lobby.some(user => user.username === username)
+    );
 
     if (!userExists) {
       const user = {
@@ -35,8 +39,22 @@ io.on('connection', (socket) => {
 
       socket.emit("getId", user.id);
     }
+
+    if(!lobbyUserExists){
+      const user = {
+        id: socket.id,
+        username: username,
+        icon: icon,
+        partyLeader: true
+      };
+
+      const newLobby = [user];
+      allLobbys.push(newLobby)
+
+      socket.emit("getStarterLobby", newLobby);
+    }
     else{
-      console.log("User exists!");
+      socket.emit("getStarterLobby", lobbyUserExists);
     }
   });
 
