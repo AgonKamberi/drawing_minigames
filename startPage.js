@@ -23,7 +23,7 @@ function enableRegister() {
 }
 
 var faceCount = 1;
-var images = ["grin-squint-tears-regular", "grin-stars-regular",  "meh-regular",  "sad-cry-regular",  "sad-tear-regular",  "smile-beam-regular",  "smile-wink-regular",  "surprise-regular"];
+var images = ["bear", "donkey",  "elephant",  "elephant2",  "goat",  "hippo",  "hippopotamus",  "horse",  "kangaroo",  "monkey",  "monkey2",  "seal"];
 
 changeIcon();
 
@@ -43,7 +43,7 @@ function changeIcon(){
 function startGuest(){
   var username = document.getElementById("guestUsername").value;
   sessionStorage.setItem("username", username);
-  sessionStorage.setItem("icon", images[faceCount]);
+  sessionStorage.setItem("icon", images[faceCount - 1]);
   window.location.href = "lobby.html";
 }
 

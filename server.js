@@ -21,11 +21,11 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   socket.on('sendUserDetails', (userDetails) => {
-    const { username, icon } = userDetails;
+    const { username, icon, id } = userDetails;
     
-    const userExists = connectedClients.some(user => user.username === username);
+    const userExists = connectedClients.some(user => user.id === id);
     const lobbyUserExists = allLobbys.find(lobby => 
-      lobby.some(user => user.username === username)
+      lobby.some(user => user.id === id)
     );
 
     if (!userExists) {
@@ -38,6 +38,9 @@ io.on('connection', (socket) => {
       connectedClients.push(user);
 
       socket.emit("getId", user.id);
+    }
+    else{
+      socket.id = id;
     }
 
     if(!lobbyUserExists){
@@ -56,6 +59,23 @@ io.on('connection', (socket) => {
     else{
       socket.emit("getStarterLobby", lobbyUserExists);
     }
+  });
+
+  socket.on('getPlayersOnline', () => {
+    let filteredClients = connectedClients.filter(client => client.id !== socket.id);
+    socket.emit("onlinePlayers", filteredClients);
+  });
+
+  socket.on('getPlayersLobby', (id) => {
+    const lobbyUserExists = allLobbys.find(lobby => 
+      lobby.some(user => user.id === id)
+    );
+    socket.emit("lobbyPlayers", lobbyUserExists);
+  });
+
+  socket.on('invitePlayer', (playerId) => {
+    const user = connectedClients.find(user => user.id === socket.id);
+    io.to(playerId).emit('receiveInvite', user);
   });
 
   socket.on('disconnect', () => {

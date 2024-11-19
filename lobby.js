@@ -5,7 +5,8 @@ sendData();
 function sendData(){
     var username = sessionStorage.getItem("username");
     var icon = sessionStorage.getItem("icon");
-    var userDetails = {username, icon};
+    var id = sessionStorage.getItem("id");
+    var userDetails = {username, icon, id};
 
     socket.emit("sendUserDetails", userDetails);
 
@@ -31,22 +32,120 @@ function sendData(){
 
 function createLobby(lobbys){
     var parent = document.getElementById("lobby");
-    lobbys.forEach(client => {
+
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
+
+    lobbys.forEach(player => {
         var holder = document.createElement("div");
         holder.classList.add("item");
 
         var icon = document.createElement("img");
-        icon.src = `img/faceIcons/${client.icon}.svg`
+        icon.src = `img/faceIcons/${player.icon}.svg`
         icon.classList.add("icon");
 
         var usernameText = document.createElement("p");
-        usernameText.innerHTML = client.username;
+        usernameText.innerHTML = player.username;
         usernameText.classList.add("usernameText");
 
         holder.appendChild(icon);
         holder.appendChild(usernameText);
         parent.appendChild(holder);
     });
+
+    invites.forEach(player => {
+        var holder = document.createElement("div");
+        holder.classList.add("item");
+
+        var icon = document.createElement("img");
+        icon.src = `img/faceIcons/${player.icon}.svg`
+        icon.classList.add("icon");
+
+        var usernameText = document.createElement("p");
+        usernameText.innerHTML = player.username;
+        usernameText.classList.add("usernameText");
+
+        var acceptButton = document.createElement("button");
+        acceptButton.innerHTML = "Accept";
+        acceptButton.classList.add("inviteButton");
+        acceptButton.onclick = function () {
+            acceptInvite(player.id);
+        };
+
+        holder.appendChild(icon);
+        holder.appendChild(usernameText);
+        holder.appendChild(acceptButton);
+        parent.appendChild(holder);
+    });
+}
+
+function createOnlineLobby(online){
+    var parent = document.getElementById("onlineLobby");
+
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
+
+    online.forEach(player => {
+        var holder = document.createElement("div");
+        holder.classList.add("item");
+
+        var icon = document.createElement("img");
+        icon.src = `img/faceIcons/${player.icon}.svg`
+        icon.classList.add("icon");
+
+        var usernameText = document.createElement("p");
+        usernameText.innerHTML = player.username;
+        usernameText.classList.add("usernameText");
+
+        var inviteButton = document.createElement("button");
+        inviteButton.innerHTML = "Invite";
+        inviteButton.classList.add("inviteButton");
+        inviteButton.onclick = function () {
+            invitePlayer(player.id);
+        };
+
+        holder.appendChild(icon);
+        holder.appendChild(usernameText);
+        holder.appendChild(inviteButton);
+        parent.appendChild(holder);
+    });
+}
+
+function invitePlayer(playerId){
+    socket.emit("invitePlayer", playerId);
+}
+
+invites = [];
+
+function createInvite(player){
+    invites.push(player);
+
+    var parent = document.getElementById("lobby");
+
+    var holder = document.createElement("div");
+    holder.classList.add("item");
+
+    var icon = document.createElement("img");
+    icon.src = `img/faceIcons/${player.icon}.svg`
+    icon.classList.add("icon");
+
+    var usernameText = document.createElement("p");
+    usernameText.innerHTML = player.username;
+    usernameText.classList.add("usernameText");
+
+    var acceptButton = document.createElement("button");
+    acceptButton.innerHTML = "Accept";
+    acceptButton.classList.add("inviteButton");
+    acceptButton.onclick = function () {
+        acceptInvite(player.id);
+    };
+
+    holder.appendChild(icon);
+    holder.appendChild(usernameText);
+    holder.appendChild(acceptButton);
+    parent.appendChild(holder);
 }
 
 socket.on("getId", (id) => {
@@ -54,18 +153,40 @@ socket.on("getId", (id) => {
 });
 
 socket.on("getStarterLobby", (lobbys) => {
-    console.log(lobbys);
     createLobby(lobbys);
 });
 
+socket.on("onlinePlayers", (online) => {
+    createOnlineLobby(online);
+});
+
+socket.on("lobbyPlayers", (lobby) => {
+    createLobby(lobby);
+});
+
+socket.on("receiveInvite", (player) => {
+    createInvite(player);
+});
+
 function enableOnline(){
+    socket.emit("getPlayersOnline");
+
     document.getElementById("lobbyButton").classList.remove("active");
     document.getElementById("onlineButton").classList.add("active");
+
+    document.getElementById("lobby").classList.remove("active");
+    document.getElementById("onlineLobby").classList.add("active");
 }
 
 function enableLobby(){
+    var id = sessionStorage.getItem("id");
+    socket.emit("getPlayersLobby", id);
+
     document.getElementById("lobbyButton").classList.add("active");
     document.getElementById("onlineButton").classList.remove("active");
+
+    document.getElementById("lobby").classList.add("active");
+    document.getElementById("onlineLobby").classList.remove("active");
 }
 
 function enableGameModes(){
