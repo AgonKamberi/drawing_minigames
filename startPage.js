@@ -80,7 +80,7 @@ function startRegister(){
   formData.append("username", username);
   formData.append("email", email);
   formData.append("password", password);
-  formData.append("icon", "grin-squint-tears-regular");
+  formData.append("icon", "bear");
   
   fetch("http://localhost/drawing_minigames_be/signup.php", {
       method: "POST",

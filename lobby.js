@@ -1,10 +1,12 @@
 const socket = io('http://localhost:3000');
 
+var icon;
+
 sendData();
 
 function sendData(){
     var username = sessionStorage.getItem("username");
-    var icon = sessionStorage.getItem("icon");
+    icon = sessionStorage.getItem("icon");
     var id = sessionStorage.getItem("id");
     var userDetails = {username, icon, id};
 
@@ -17,7 +19,7 @@ function sendData(){
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
+            icon = data.icon;
         })
         .catch(error => console.error("Error:", error));
     }
