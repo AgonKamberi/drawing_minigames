@@ -98,19 +98,20 @@ function addPostToDOM(postData) {
         </div>
         <p class="post-content">${postData.subject}</p>
         <div class="post-footer">
-            <button class="btn-vote upvote" onclick="upvotePost(this)">
-                <i class="fa fa-thumbs-up"></i>
-            </button>
-            <span class="vote-counter">${postData.upvotes}</span>
-            <button class="btn-vote downvote" onclick="downvotePost(this)">
-                <i class="fa fa-thumbs-down"></i>
-            </button>
+            ${postData.user_voted 
+                ? `<button class="btn-vote downvote" onclick="downvotePost(${postData.id})">
+                        <i class="fa fa-thumbs-down"></i>
+                   </button>`
+                : `<button class="btn-vote upvote" onclick="upvotePost(${postData.id})">
+                        <i class="fa fa-thumbs-up"></i>
+                   </button>`
+            }
+            <span class="vote-counter" id="${postData.id}">${postData.upvotes}</span>
         </div>
     `;
-    
+
     postsContainer.append(postElement);
 }
-
 
 function deletePost(postId) {
     fetch(`http://localhost/drawing_minigames_be/deletePost.php?id=${postId}`, {
@@ -132,43 +133,69 @@ function deletePost(postId) {
         console.error('Error:', error);
     });
 }
-function upvotePost(button, postId) {
-    const counter = button.nextElementSibling;
-    fetch(`vote.php`, {
+
+function upvotePost(postId) {
+    const formData = new FormData();
+    formData.append('postId', postId);
+    formData.append('vote', 'up');
+    formData.append('user_id', info.id);
+
+    const counter = document.getElementById(postId);
+    const postElement = document.getElementById(`post-${postId}`);
+    fetch(`http://localhost/drawing_minigames_be/votePost.php`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ postId, vote: 'up' })
+        body: formData
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             counter.textContent = parseInt(counter.textContent) + 1;
+
+            const footer = postElement.querySelector('.post-footer');
+            footer.innerHTML = `
+                <button class="btn-vote downvote" onclick="downvotePost(${postId})">
+                    <i class="fa fa-thumbs-down"></i>
+                </button>
+                <span class="vote-counter" id="${postId}">${counter.textContent}</span>
+            `;
         } else {
             alert('Failed to upvote: ' + data.error);
         }
-    });
+    })
+    .catch(error => console.error('Error:', error));
 }
 
-function downvotePost(button, postId) {
-    const counter = button.previousElementSibling;
-    fetch(`vote.php`, {
+function downvotePost(postId) {
+    const formData = new FormData();
+    formData.append('postId', postId);
+    formData.append('vote', 'down');
+    formData.append('user_id', info.id);
+
+    const counter = document.getElementById(postId);
+    const postElement = document.getElementById(`post-${postId}`);
+    fetch(`http://localhost/drawing_minigames_be/votePost.php`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ postId, vote: 'down' })
+        body: formData
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             counter.textContent = parseInt(counter.textContent) - 1;
+
+            const footer = postElement.querySelector('.post-footer');
+            footer.innerHTML = `
+                <button class="btn-vote upvote" onclick="upvotePost(${postId})">
+                    <i class="fa fa-thumbs-up"></i>
+                </button>
+                <span class="vote-counter" id="${postId}">${counter.textContent}</span>
+            `;
         } else {
             alert('Failed to downvote: ' + data.error);
         }
-    });
+    })
+    .catch(error => console.error('Error:', error));
 }
+
 
 function openProfile() {
     const profileModal = document.getElementById('profileModal');
