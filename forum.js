@@ -37,6 +37,7 @@ async function fetchPosts() {
 
         data.forEach(post => {
             addPostToDOM(post);
+            fetchReplies(post.id);
         });
 
     } catch (error) {
@@ -107,6 +108,23 @@ function addPostToDOM(postData) {
                    </button>`
             }
             <span class="vote-counter" id="${postData.id}">${postData.upvotes}</span>
+        </div>
+
+        <div class="replies-section">
+            <div class="replies-header">
+                <button class="btn-toggle-replies" onclick="toggleReplies(${postData.id})">
+                    Show Replies
+                </button>
+            </div>
+            <div class="replies" id="replies-${postData.id}" style="display: none;">
+                <!-- Replies will be dynamically added here -->
+            </div>
+            <div class="reply-input">
+                <textarea placeholder="Write your reply..." class="new-reply-input" id="replyInput-${postData.id}"></textarea>
+                <button class="btn-reply" onclick="addReply(${postData.id})">
+                    Post Reply
+                </button>
+            </div>
         </div>
     `;
 
@@ -231,7 +249,6 @@ async function saveProfile() {
         if (data.success) {
             info.username = username;
             info.email = email;
-            console.log(info);
             closeProfile();
         } else {
             alert('Error updating profile: ' + data.error);
@@ -239,4 +256,120 @@ async function saveProfile() {
     } catch (error) {
         console.error('Error:', error);
     }
+}
+
+async function fetchReplies(postId) {
+    try {
+        const response = await fetch(`http://localhost/drawing_minigames_be/getReplies.php?postId=${postId}`, {
+            method: "GET",
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch replies');
+        }
+
+        const data = await response.json();
+        data.forEach(reply => {
+            addReplyToDOM(postId, reply);
+        });
+
+    } catch (error) {
+        console.error("Error fetching replies:", error);
+    }
+}
+
+function addReply(postId) {
+    const replyInput = document.getElementById(`replyInput-${postId}`);
+    const replyContent = replyInput.value.trim();
+    const userId = info.id;
+
+    if (!replyContent) {
+        alert('Reply cannot be empty');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('postId', postId);
+    formData.append('replyContent', replyContent);
+    formData.append('userId', userId);
+
+    fetch('http://localhost/drawing_minigames_be/addReply.php', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            const replyData = {
+                reply_id: result.replyId,
+                username: info.username,
+                user_id: info.id,
+                content: replyContent,
+                created_at: new Date().toISOString(),
+            };
+            addReplyToDOM(postId, replyData);
+            replyInput.value = '';
+        } else {
+            alert(result.error);
+        }
+    })
+    .catch(error => console.error('Error adding reply:', error));    
+}
+
+function addReplyToDOM(postId, replyData) {
+    const repliesContainer = document.getElementById(`replies-${postId}`);
+    const replyElement = document.createElement('div');
+    replyElement.className = 'reply';
+    replyElement.id = `reply-${replyData.reply_id}`;
+    
+    const deleteButton = (replyData.user_id === info.id) 
+        ? `<button class="btn-delete-reply" onclick="deleteReply(${replyData.reply_id}, ${postId})">Delete</button>`
+        : '';
+
+    replyElement.innerHTML = `
+        <p class="reply-author">${replyData.username}</p>
+        <p class="reply-content">${replyData.content}</p>
+        <p class="reply-time">${new Date(replyData.created_at).toLocaleString()}</p>
+        ${deleteButton}
+    `;
+
+    repliesContainer.insertBefore(replyElement, repliesContainer.firstChild);
+}
+
+
+function toggleReplies(postId) {
+    const repliesContainer = document.getElementById(`replies-${postId}`);
+    const toggleButton = document.querySelector(`#post-${postId} .btn-toggle-replies`);
+
+    if (repliesContainer.style.display === 'none') {
+        repliesContainer.style.display = 'block';
+        toggleButton.textContent = 'Hide Replies';
+    } else {
+        repliesContainer.style.display = 'none';
+        toggleButton.textContent = 'Show Replies';
+    }
+}
+
+function deleteReply(replyId) {
+    fetch(`http://localhost/drawing_minigames_be/deleteReply.php?id=${replyId}`, {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Response Data:', data);
+
+        if (data.success) {
+            const replyElement = document.getElementById(`reply-${replyId}`);
+            if (replyElement) {
+                replyElement.remove();
+            }
+        } else {
+            console.error('Error deleting reply:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
 }
