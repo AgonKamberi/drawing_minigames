@@ -122,5 +122,24 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     connectedClients = connectedClients.filter(user => user.id !== socket.id);
+
+    const userLobby = allLobbys.find(lobby =>
+      lobby.some(user => user.id === socket.id)
+    );
+
+    if (userLobby) {
+      const userIndex = userLobby.findIndex(user => user.id === socket.id);
+      if (userIndex !== -1) {
+        userLobby.splice(userIndex, 1);
+      }
+
+      if (userLobby.length === 0) {
+        allLobbys = allLobbys.filter(lobby => lobby !== userLobby);
+      } else {
+        userLobby.forEach(userInLobby => {
+          io.to(userInLobby.id).emit("lobbyPlayers", userLobby);
+        });
+      }
+    }
   });
 });
