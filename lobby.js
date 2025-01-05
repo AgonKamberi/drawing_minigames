@@ -10,8 +10,6 @@ function sendData(){
     var id = sessionStorage.getItem("id");
     var userDetails = {username, icon, id};
 
-    socket.emit("sendUserDetails", userDetails);
-
     if(username == null){
         fetch("http://localhost/drawing_minigames_be/isLoggedIn.php", {
             method: "GET",
@@ -19,7 +17,13 @@ function sendData(){
         })
         .then(response => response.json())
         .then(data => {
-            icon = data.icon;
+            icon = data.data.icon;
+            username = data.data.username;
+            userDetails = {username, icon, id}
+
+            console.log(userDetails);
+
+            socket.emit("sendUserDetails", userDetails);
         })
         .catch(error => console.error("Error:", error));
     }
@@ -29,6 +33,8 @@ function sendData(){
         })
         .then(response => response.text())
         .catch(error => console.error("Error:", error));
+
+        socket.emit("sendUserDetails", userDetails);
     }
 }
 
