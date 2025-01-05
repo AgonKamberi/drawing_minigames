@@ -62,30 +62,32 @@ function createLobby(lobbys){
         parent.appendChild(holder);
     });
 
-    invites.forEach(player => {
-        var holder = document.createElement("div");
-        holder.classList.add("item");
+    //Commented to test something.(Maybe turn back later)
+    // invites.forEach(player => {
+    //     var holder = document.createElement("div");
+    //     holder.classList.add("item");
+    //     holder.classList.add("item");
 
-        var icon = document.createElement("img");
-        icon.src = `img/faceIcons/${player.icon}.svg`
-        icon.classList.add("icon");
+    //     var icon = document.createElement("img");
+    //     icon.src = `img/faceIcons/${player.icon}.svg`
+    //     icon.classList.add("icon");
 
-        var usernameText = document.createElement("p");
-        usernameText.innerHTML = player.username;
-        usernameText.classList.add("usernameText");
+    //     var usernameText = document.createElement("p");
+    //     usernameText.innerHTML = player.username;
+    //     usernameText.classList.add("usernameText");
 
-        var acceptButton = document.createElement("button");
-        acceptButton.innerHTML = "Accept";
-        acceptButton.classList.add("inviteButton");
-        acceptButton.onclick = function () {
-            acceptInvite(player.id);
-        };
+    //     var acceptButton = document.createElement("button");
+    //     acceptButton.innerHTML = "Accept";
+    //     acceptButton.classList.add("inviteButton");
+    //     acceptButton.onclick = function () {
+    //         acceptInvite(player.id);
+    //     };
 
-        holder.appendChild(icon);
-        holder.appendChild(usernameText);
-        holder.appendChild(acceptButton);
-        parent.appendChild(holder);
-    });
+    //     holder.appendChild(icon);
+    //     holder.appendChild(usernameText);
+    //     holder.appendChild(acceptButton);
+    //     parent.appendChild(holder);
+    // });
 }
 
 function createOnlineLobby(online){
@@ -154,6 +156,10 @@ function createInvite(player){
     holder.appendChild(usernameText);
     holder.appendChild(acceptButton);
     parent.appendChild(holder);
+}
+
+function acceptInvite(playerId){
+    socket.emit("acceptInvite", playerId, sessionStorage.getItem("id"));
 }
 
 socket.on("getId", (id) => {

@@ -62,8 +62,20 @@ io.on('connection', (socket) => {
   });
 
   socket.on('getPlayersOnline', () => {
-    let filteredClients = connectedClients.filter(client => client.id !== socket.id);
-    socket.emit("onlinePlayers", filteredClients);
+  const userLobby = allLobbys.find(lobby =>
+    lobby.some(user => user.id === socket.id)
+  );
+
+  let filteredClients = connectedClients.filter(client => {
+    if (client.id === socket.id) return false;
+
+    if (userLobby && userLobby.some(user => user.id === client.id)) {
+      return false;
+    }
+    return true;
+  });
+
+  socket.emit("onlinePlayers", filteredClients);
   });
 
   socket.on('getPlayersLobby', (id) => {
@@ -76,6 +88,36 @@ io.on('connection', (socket) => {
   socket.on('invitePlayer', (playerId) => {
     const user = connectedClients.find(user => user.id === socket.id);
     io.to(playerId).emit('receiveInvite', user);
+  });
+
+  socket.on('acceptInvite', (playerId, userId) => {
+    const playerLobby = allLobbys.find(lobby =>
+      lobby.some(user => user.id === playerId)
+    );
+  
+    const userLobby = allLobbys.find(lobby =>
+      lobby.some(user => user.id === userId)
+    );
+  
+    const user = userLobby.find(user => user.id === userId);
+
+    userLobby.splice(userLobby.indexOf(user), 1);
+  
+    if (userLobby.length === 0) {
+      allLobbys = allLobbys.filter(lobby => lobby !== userLobby);
+    }
+  
+    playerLobby.push(user);
+  
+    playerLobby.forEach(userInLobby => {
+      io.to(userInLobby.id).emit("lobbyPlayers", playerLobby);
+    });
+  
+    if (userLobby.length > 0) {
+      userLobby.forEach(userInLobby => {
+        io.to(userInLobby.id).emit("lobbyPlayers", userLobby);
+      });
+    }
   });
 
   socket.on('disconnect', () => {
