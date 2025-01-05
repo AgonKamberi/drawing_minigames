@@ -57,9 +57,31 @@ function createLobby(lobbys){
         usernameText.innerHTML = player.username;
         usernameText.classList.add("usernameText");
 
+        if (player.partyLeader) {
+            var crownIcon = document.createElement("p");
+            crownIcon.classList.add("fas", "fa-crown", "partyLeaderCrown");
+            usernameText.prepend(crownIcon);
+        }
+        else {
+            const currentUserId = sessionStorage.getItem("id");
+            const leader = lobbys.find(p => p.partyLeader);
+        
+            if (leader && leader.id === currentUserId) {
+                var kickButton = document.createElement("button");
+                kickButton.innerHTML = "Kick";
+                kickButton.classList.add("kickButton");
+                kickButton.onclick = function () {
+                    kickPlayer(player.id);
+                };
+            }
+        }
+
         holder.appendChild(icon);
         holder.appendChild(usernameText);
         parent.appendChild(holder);
+        if(kickButton){
+            holder.appendChild(kickButton);
+        }
     });
 
     //Commented to test something.(Maybe turn back later)
@@ -158,6 +180,10 @@ function createInvite(player){
     parent.appendChild(holder);
 }
 
+function kickPlayer(playerId) {
+    socket.emit('kickPlayer', playerId);
+}
+
 function acceptInvite(playerId){
     socket.emit("acceptInvite", playerId, sessionStorage.getItem("id"));
 }
@@ -180,6 +206,11 @@ socket.on("lobbyPlayers", (lobby) => {
 
 socket.on("receiveInvite", (player) => {
     createInvite(player);
+});
+
+socket.on('kicked', () => {
+    alert('You have been kicked from the lobby.');
+    enableOnline();
 });
 
 function enableOnline(){
