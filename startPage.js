@@ -64,6 +64,7 @@ function startLogin(){
   .then(response => response.json())
   .then(data => {
     if(data.loggedIn){
+      sessionStorage.removeItem("username");
       window.location.href = "lobby.html";
     }
   })
@@ -89,6 +90,7 @@ function startRegister(){
   .then(response => response.text())
   .then(data => {
     if(data.created){
+      sessionStorage.removeItem("username");
       window.location.href = "lobby.html";
     }
   })

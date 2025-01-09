@@ -25,7 +25,7 @@ body{
     margin-top: 20px;
     margin-bottom: 5vh;
     color: white;
-    font-size: 60px;
+    font-size: 40px;
     font-weight: bold;
 }
 .online-part {
@@ -192,4 +192,27 @@ body{
     background-color: #ff1515;
     color: rgb(255, 255, 255);
     font-weight: bold;
+}
+.site-footer {
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    margin-top: 20px;
+}
+.footer-links {
+    margin-bottom: 10px;
+}
+.footer-link {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+    font-size: 18px;
+}
+.footer-link:hover {
+    color: #008006;
+}
+.footer-text {
+    font-size: 14px;
+    color: white;
 }
