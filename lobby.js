@@ -1,6 +1,7 @@
 const socket = io('http://localhost:3000');
 
 var icon;
+let isPartyLeader;
 
 sendData();
 
@@ -49,6 +50,11 @@ function createLobby(lobbys){
         parent.removeChild(parent.firstChild);
     }
 
+    const currentUserId = sessionStorage.getItem("id");
+    const leader = lobbys.find(p => p.partyLeader);
+
+    isPartyLeader = leader.id == currentUserId;
+
     lobbys.forEach(player => {
         var holder = document.createElement("div");
         holder.classList.add("item");
@@ -67,9 +73,6 @@ function createLobby(lobbys){
             usernameText.prepend(crownIcon);
         }
         else {
-            const currentUserId = sessionStorage.getItem("id");
-            const leader = lobbys.find(p => p.partyLeader);
-        
             if (leader && leader.id === currentUserId) {
                 var kickButton = document.createElement("button");
                 kickButton.innerHTML = "Kick";
@@ -192,6 +195,13 @@ function acceptInvite(playerId){
     socket.emit("acceptInvite", playerId, sessionStorage.getItem("id"));
 }
 
+function startGuessingGame(){
+    if(isPartyLeader){
+        var id = sessionStorage.getItem("id");
+        socket.emit("startGuessingGame", id);
+    }
+}
+
 socket.on("getId", (id) => {
     sessionStorage.setItem("id", id);
 });
@@ -202,6 +212,10 @@ socket.on("getStarterLobby", (lobbys) => {
 
 socket.on("onlinePlayers", (online) => {
     createOnlineLobby(online);
+});
+
+socket.on("enterGuessingGame", () => {
+    window.location.href = "guessingGame/guessingGame.html";
 });
 
 socket.on("lobbyPlayers", (lobby) => {

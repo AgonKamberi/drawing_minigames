@@ -82,6 +82,39 @@ io.on('connection', (socket) => {
     socket.emit("lobbyPlayers", lobbyUserExists);
   });
 
+  socket.on('getLobbyData', (id) => {
+    const lobbyUserExists = allLobbys.find(lobby =>
+      lobby.some(user => user.id === id)
+    );
+    socket.emit("lobbyPlayers", lobbyUserExists, lobbyUserExists.gameState);
+  });
+
+  socket.on("changeId", (id) => {
+    const newId = socket.id;
+    const userLobby = allLobbys.find(lobby =>
+      lobby.some(user => user.id === id)
+    );
+  
+    if (userLobby) {
+      const user = userLobby.find(user => user.id === id);
+      if (user) {
+        user.id = newId;
+  
+        if (userLobby.gameState && userLobby.gameState.scores) {
+          const scores = userLobby.gameState.scores;
+          if (scores[id] !== undefined) {
+            scores[newId] = scores[id];
+            delete scores[id];
+          }
+        }
+      }
+  
+      socket.emit("newId", newId);
+    } else {
+      console.error("User not found in any lobby.");
+    }
+  });
+  
   socket.on('invitePlayer', (playerId) => {
     const user = connectedClients.find(user => user.id === socket.id);
     io.to(playerId).emit('receiveInvite', user);
@@ -119,37 +152,90 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('kickPlayer', (kickedUserId) => {
+  socket.on("startGuessingGame", () => {
     const userLobby = allLobbys.find(lobby =>
       lobby.some(user => user.id === socket.id)
     );
-  
+
     if (userLobby) {
       const partyLeader = userLobby.find(user => user.partyLeader);
-      if (partyLeader && partyLeader.id === socket.id) {
-        const kickedUser = userLobby.find(user => user.id === kickedUserId);
-        if (kickedUser) {
-          userLobby.splice(userLobby.indexOf(kickedUser), 1);
-  
-          io.to(kickedUser.id).emit('kicked');
-  
-          userLobby.forEach(user => {
-            io.to(user.id).emit('lobbyPlayers', userLobby);
-          });
-  
-          if (userLobby.length === 0) {
-            allLobbys = allLobbys.filter(lobby => lobby !== userLobby);
-          }
-  
-          kickedUser.partyLeader = true;
-          const newLobby = [kickedUser];
-          allLobbys.push(newLobby);
-  
-          io.to(kickedUser.id).emit('newLobbyCreated', newLobby);
-        }
+      if (partyLeader.id === socket.id) {
+        userLobby.gameState = {
+          currentRound: 1,
+          currentDrawerIndex: 0,
+          scores: {},
+          totalRounds: 5
+        };
+
+        userLobby.forEach(user => {
+          userLobby.gameState.scores[user.id] = 0;
+          io.to(user.id).emit('enterGuessingGame', userLobby.gameState);
+        });
       }
     }
   });
+
+  socket.on('drawing', (...args) => {
+    const userId = args[args.length - 1];
+    const userLobby = allLobbys.find(lobby =>
+      lobby.some(user => user.id === userId)
+    );
+
+    if (userLobby) {
+      userLobby.forEach(user => {
+        io.to(user.id).emit("drawingServer", ...args);
+      });
+    }
+  });
+
+  socket.on('clearCanvas', (userId) => {
+    const userLobby = allLobbys.find(lobby =>
+      lobby.some(user => user.id === userId)
+    );
+
+    if (userLobby) {
+      userLobby.forEach(user => {
+        io.to(user.id).emit("clearCanvas", user.id);
+      });
+    }
+  });
+
+  // socket.on("submitGuess", (guess) => {
+  //   const userLobby = allLobbys.find(lobby =>
+  //     lobby.some(user => user.id === socket.id)
+  //   );
+
+  //   if (userLobby && userLobby.gameState) {
+  //     const currentDrawer = userLobby[userLobby.gameState.currentDrawerIndex];
+
+  //     if (guess.correct) {
+  //       userLobby.gameState.scores[socket.id] += 10;
+
+  //       userLobby.forEach(user => {
+  //         io.to(user.id).emit('scoreUpdated', userLobby.gameState.scores);
+  //       });
+
+  //       if (Object.values(userLobby.gameState.scores).length === userLobby.length - 1) {
+  //         userLobby.gameState.currentDrawerIndex = (userLobby.gameState.currentDrawerIndex + 1) % userLobby.length;
+
+  //         if (userLobby.gameState.currentDrawerIndex === 0) {
+  //           userLobby.gameState.currentRound++;
+
+  //           if (userLobby.gameState.currentRound > userLobby.gameState.totalRounds) {
+  //             const winners = Object.keys(userLobby.gameState.scores).sort((a, b) => userLobby.gameState.scores[b] - userLobby.gameState.scores[a]);
+  //             userLobby.forEach(user => {
+  //               io.to(user.id).emit('gameEnded', { winners, scores: userLobby.gameState.scores });
+  //             });
+  //             delete userLobby.gameState;
+  //             return;
+  //           }
+  //         }
+
+  //         io.to(userLobby[userLobby.gameState.currentDrawerIndex].id).emit('yourTurnToDraw');
+  //       }
+  //     }
+  //   }
+  // });
 
   socket.on('disconnect', () => {
     connectedClients = connectedClients.filter(user => user.id !== socket.id);
@@ -158,7 +244,7 @@ io.on('connection', (socket) => {
       lobby.some(user => user.id === socket.id)
     );
 
-    if (userLobby) {
+    if (userLobby && userLobby.gameState == null) {
       const userIndex = userLobby.findIndex(user => user.id === socket.id);
       if (userIndex !== -1) {
         userLobby.splice(userIndex, 1);

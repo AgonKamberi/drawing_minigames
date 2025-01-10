@@ -1,0 +1,251 @@
+body {
+    font-family: Century Gothic;
+    background: linear-gradient(200deg, rgba(92, 30, 166, 1) 0%, rgba(200, 67, 94, 1) 100%) no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+}
+#row {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    padding: 10px;
+}
+#wrapper {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+    gap: 20px;
+}
+canvas {
+    position: relative;
+    float: left;
+    left: 43%;
+    background-color: white;
+    cursor: crosshair;
+    border-radius: 10px;
+    width: 50rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+#controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 580px;
+    padding: 0 20px;
+}
+#widthControl {
+    display: flex;
+    align-items: center;
+    flex-direction: column-reverse;
+    margin: 50px 0;
+}
+.widthExample {
+    background-color: black;
+    border-radius: 50%;
+    margin: 3px;
+    opacity: 0.4;
+    transition: opacity 200ms ease;
+}
+.widthExample:nth-child(1) {
+    width: 5px;
+    height: 5px;
+}
+.widthExample:nth-child(2) {
+    width: 10px;
+    height: 10px;
+}
+.widthExample:nth-child(3) {
+    width: 15px;
+    height: 15px;
+    opacity: 1;
+}
+.widthExample:nth-child(4) {
+    width: 20px;
+    height: 20px;
+}
+.widthExample:nth-child(5) {
+    width: 25px;
+    height: 25px;
+}
+.widthExample:hover {
+    opacity: 1 !important;
+    cursor: pointer;
+}
+#palette {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+.colorSquare {
+    margin-top: 2px;
+    height: 25px;
+    width: 25px;
+    border-radius: 50%;
+    margin-left: 5px;
+    border: 1px solid black;
+    cursor: pointer;
+    transition: transform 200ms ease, border-radius 200ms ease;
+}
+.colorSquare:hover {
+    transform: scale(1.2);
+    border-radius: 50%;
+    z-index: 1;
+}
+#clearBtn, #pen, #eraser {
+    margin-top: 10px;
+    font-size: 25px;
+    color: gray;
+    transition: color 400ms ease;
+    cursor: pointer;
+}
+#clearBtn:hover {
+    color: rgb(255, 20, 20);
+}
+#pen:hover {
+    color: rgb(20, 247, 255);
+}
+#eraser:hover {
+    color: rgb(47, 255, 20);
+}
+#wordTool {
+    width: max-content;
+}
+.active {
+    transform: scale(1.3);
+}
+.wordPicker {
+    letter-spacing: 2px;
+    position: relative;
+    text-align: center;
+    padding: 20px;
+    font-size: 21px;
+    background-color: rgba(38, 28, 92, 0.5);
+    border-radius: 10px;
+    color: rgb(92, 255, 182);
+    text-shadow: rgb(23 5 87) 3px 0px 0px, rgb(23 5 87) 2.83487px 0.981584px 0px, rgb(23 5 87) 2.35766px 1.85511px 0px, rgb(23 5 87) 1.62091px 2.52441px 0px, rgb(23 5 87) 0.705713px 2.91581px 0px, rgb(23 5 87) -0.287171px 2.98622px 0px, rgb(23 5 87) -1.24844px 2.72789px 0px, rgb(23 5 87) -2.07227px 2.16926px 0px, rgb(23 5 87) -2.66798px 1.37182px 0px, rgb(23 5 87) -2.96998px 0.42336px 0px, rgb(23 5 87) -2.94502px -0.571704px 0px, rgb(23 5 87) -2.59586px -1.50383px 0px, rgb(23 5 87) -1.96093px -2.27041px 0px, rgb(23 5 87) -1.11013px -2.78704px 0px, rgb(23 5 87) -0.137119px -2.99686px 0px, rgb(23 5 87) 0.850987px -2.87677px 0px, rgb(23 5 87) 1.74541px -2.43999px 0px, rgb(23 5 87) 2.44769px -1.73459px 0px, rgb(23 5 87) 2.88051px -0.838247px 0px;
+}
+.chatRows {
+    right: 8px;
+    position: relative;
+    float: right;
+    word-break: break-all;
+    background-color: rgba(38, 28, 92, 0.5);
+    opacity: 0.8;
+    color: black;
+    overflow-y: auto;
+    width: 23%;
+    height: 595px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.chat {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 20px;
+    border: 3px solid white;
+    border-radius: 5px 5px 10px 10px;
+    padding: 5px;
+}
+.lobbyBody {
+    left: 8px;
+    text-align: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: fixed;
+    background-color: rgba(38, 28, 92, 0.5);
+    width: 19.5%;
+    display: flex;
+    flex-direction: column;
+    height: 595px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.item {
+    position: relative;
+    width: 90%;
+    height: 70px;
+    margin-left: 5%;
+    margin-top: 5%;
+    flex-shrink: 0;
+    background: rgba(80, 66, 158, 0.5);
+    border-radius: 35px 10px 10px 35px;
+    display: flex;
+    flex-direction: row;
+    text-align: center;
+}
+.item p{
+    position: relative;
+    font-weight: bold;
+    top: 30%;
+    left: 20%;
+    opacity: 1;
+}
+.icon{
+    height: 90%;
+    position: relative;
+    top: 5%;
+    left: 2.5%;
+}
+span {
+    position: relative;
+    color: white;
+    font-family: sans-serif Arial, Helvetica, sans-serif;
+    font-size: 17px;
+    opacity: 1;
+    padding: 0px 17px 35px 0px;
+    left: 10px;
+}
+#scoreBoardText {
+    color: white;
+}
+#playersText {
+    top: 10px;
+    letter-spacing: 2px;
+    position: relative;
+    text-align: center;
+    font-size: 21px;
+    border-radius: 10px;
+    color: rgb(92, 255, 182);
+    text-shadow: rgb(23 5 87) 3px 0px 0px, rgb(23 5 87) 2.83487px 0.981584px 0px, rgb(23 5 87) 2.35766px 1.85511px 0px, rgb(23 5 87) 1.62091px 2.52441px 0px, rgb(23 5 87) 0.705713px 2.91581px 0px, rgb(23 5 87) -0.287171px 2.98622px 0px, rgb(23 5 87) -1.24844px 2.72789px 0px, rgb(23 5 87) -2.07227px 2.16926px 0px, rgb(23 5 87) -2.66798px 1.37182px 0px, rgb(23 5 87) -2.96998px 0.42336px 0px, rgb(23 5 87) -2.94502px -0.571704px 0px, rgb(23 5 87) -2.59586px -1.50383px 0px, rgb(23 5 87) -1.96093px -2.27041px 0px, rgb(23 5 87) -1.11013px -2.78704px 0px, rgb(23 5 87) -0.137119px -2.99686px 0px, rgb(23 5 87) 0.850987px -2.87677px 0px, rgb(23 5 87) 1.74541px -2.43999px 0px, rgb(23 5 87) 2.44769px -1.73459px 0px, rgb(23 5 87) 2.88051px -0.838247px 0px;
+}
+#roomBtn {
+    font-size: 22px;
+    text-align: center;
+    border-radius: 15px;
+    width: 50%;
+    margin-top: 40px;
+    padding: 10px;
+    color: #fff;
+    background-color: rgba(92, 255, 182, 1);
+    border: 2px solid black;
+    transition: background-color 400ms ease, transform 300ms ease;
+    cursor: pointer;
+}
+#roomBtn:hover {
+    background-color: #4db9f7;
+    transform: scale(1.1);
+}
+.hidden {
+    display: none;
+}
+#container {
+    margin-top: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+#container img {
+    width: 150px;
+    height: 150px;
+    border-radius: 20px;
+    border: 2px solid #fff;
+}
+#container img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
