@@ -1,12 +1,16 @@
 const socket = io('http://localhost:3000');
 
 var id = sessionStorage.getItem("id");
+var username = sessionStorage.getItem("username");
+var currentDrawer = false;
+var guessedIt = false;
 socket.emit("getLobbyData", id);
 socket.emit("changeId", id);
 
 socket.on("newId", (newId) => {
   sessionStorage.setItem("id", newId);
   id = newId;
+  socket.emit("connectedGuessingGame", id);
 });
 
 socket.on("lobbyPlayers", (players, state) => {
@@ -14,22 +18,22 @@ socket.on("lobbyPlayers", (players, state) => {
     parent.innerHTML = "";
 
     players.forEach(player => {
-        var holder = document.createElement("div");
-        holder.classList.add("item");
+      var holder = document.createElement("div");
+      holder.classList.add("item");
 
-        var icon = document.createElement("img");
-        icon.src = `../img/faceIcons/${player.icon}.svg`
-        icon.classList.add("icon");
+      var icon = document.createElement("img");
+      icon.src = `../img/faceIcons/${player.icon}.svg`
+      icon.classList.add("icon");
 
-        const score = state.scores ? state.scores[player.id] : 0;
+      const score = state.scores ? state.scores[player.id] : 0;
 
-        var usernameText = document.createElement("p");
-        usernameText.innerHTML = player.username + ": " + score;
-        usernameText.classList.add("usernameText");
+      var usernameText = document.createElement("p");
+      usernameText.innerHTML = player.username + ": " + score;
+      usernameText.classList.add("usernameText");
 
-        holder.appendChild(icon);
-        holder.appendChild(usernameText);
-        parent.appendChild(holder);
+      holder.appendChild(icon);
+      holder.appendChild(usernameText);
+      parent.appendChild(holder);
     });
 });
 
@@ -39,7 +43,6 @@ let isDrawing = false;
 let lastPos = null;
 let drawColor = "black";
 let lineWidth = 15;
-let canDraw = true;
 let playerCount = 0;
 
 var canvas = document.querySelector("canvas");
@@ -68,7 +71,7 @@ function createPalette() {
 }
 
 function draw(e) {
-  if(canDraw){
+  if(currentDrawer){
     const [x, y] = mousePos(e);
     if (lastPos) {
         socket.emit("drawing", drawColor, lineWidth, lastPos, [x, y], id);
@@ -119,7 +122,7 @@ canvas.addEventListener("mouseup", (e) => {
 });
 
 document.getElementById("clearBtn").addEventListener("click", () => {
-  if(canDraw){
+  if(currentDrawer){
     socket.emit("clearCanvas", id);
   }
 });
@@ -167,6 +170,40 @@ document.querySelectorAll(".widthExample").forEach((ex) => {
   });
 });
 
+socket.on("addMessage", (message) => {
+  document.getElementById('chatRows').innerHTML += "<span>" + message + "</span>" + "</br>";
+});
+
+socket.on("getWord", (word) => {
+  currentDrawer = true;
+  document.getElementById("wordPicker").innerHTML = word;
+});
+
+socket.on("getWordLength", (length) => {
+  currentDrawer = false;
+  guessedIt = false;
+  document.getElementById("wordPicker").innerHTML = "";
+
+  while(length > 0){
+    document.getElementById("wordPicker").innerHTML += "_";
+    length--;
+  }
+});
+
+socket.on("guessedIt", (word) => {
+  document.getElementById("wordPicker").innerHTML = word;
+
+  guessedIt = true;
+});
+
+function chat(){
+  var guess = document.getElementById('chat').value;
+
+  if(!currentDrawer && !guessedIt){
+    socket.emit("submitGuess", guess, username, id);
+  }
+};
+
 // var isLeader = true;
 
 // if(isLeader == true){
@@ -192,39 +229,6 @@ document.querySelectorAll(".widthExample").forEach((ex) => {
 // var score;
 
 // var wonPoints = false;
-
-// function chat(){
-//   var message = document.getElementById('chat').value;
-
-//   if(canDraw == false){
-//     if(username != ""){
-//       if(message != ""){
-//         if(message == wordToType){
-//           youGuestIt = true;
-
-//           messageSend = username + " guest it!";
-//           socket.emit('send-message', messageSend);
-//           document.getElementById('chatRows').innerHTML += "<span>" + username + " guest it!" + "</span>" + "</br>";
-//           if(wonPoints == false){
-//             score += 50;
-//             wonPoints = true;
-//           }
-//         }
-//         else{
-//           if(youGuestIt == false){
-//             document.getElementById('chatRows').innerHTML += "<span>" + username + ":" + " " + message + "</span>" + "</br>";
-  
-//             messageSend = username + ":" + " " + message;
-          
-//             socket.emit('send-message', messageSend);
-          
-//             document.getElementById('chat').value = "";
-//           }
-//         }
-//       }
-//     }
-//   }
-// };
 
 // socket.on('recieve-message', (messageSend) => {
 //   document.getElementById('chatRows').innerHTML += "<span>" + messageSend + "</span> </br>";

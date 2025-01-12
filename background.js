@@ -12,7 +12,7 @@ function createObject(){
     var images = ["car-solid", "apple-alt-solid", "bell-solid", "bicycle-solid", "bomb-solid", "building-solid", "couch-solid", "desktop-solid"];
     var image = images[Math.floor(Math.random()*images.length)];
 
-    object.src = `img/backgroundIcons/${image}.svg`;
+    object.src = `../img/backgroundIcons/${image}.svg`;
 
     object.style.width = 20 + size + 'px';
     object.style.height = 20 + size + 'px';

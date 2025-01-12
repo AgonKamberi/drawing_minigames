@@ -14,6 +14,18 @@ const io = require('socket.io')(server, {
 
 let connectedClients = [];
 let allLobbys = [];
+let randomWords = [
+  "apple", "cat", "dog", "tree", "house", "car", "flower", 
+  "balloon", "guitar", "book", "cake", "rainbow", "pizza", 
+  "elephant", "chair", "sun", "star", "cloud", "shoe", 
+  "banana", "hat", "fish", "butterfly", "lamp", "train", 
+  "castle", "dragon", "mountain", "robot", "spider", "clock", 
+  "bird", "ice cream", "pencil", "bicycle", "lion", "octopus", 
+  "unicorn", "snowman", "ladder", "rocket", "cactus", 
+  "dinosaur", "cupcake", "turtle", "boat", "telescope", 
+  "waterfall", "treehouse", "bridge", "giraffe", "camera", 
+  "penguin", "parachute", "kangaroo", "monster", "lighthouse"
+];
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -159,17 +171,67 @@ io.on('connection', (socket) => {
 
     if (userLobby) {
       const partyLeader = userLobby.find(user => user.partyLeader);
+
       if (partyLeader.id === socket.id) {
         userLobby.gameState = {
           currentRound: 1,
           currentDrawerIndex: 0,
           scores: {},
-          totalRounds: 5
+          totalRounds: 5,
+          word: randomWords[Math.floor(Math.random() * randomWords.length)],
+          started: false,
+          connected: 0
         };
 
         userLobby.forEach(user => {
           userLobby.gameState.scores[user.id] = 0;
-          io.to(user.id).emit('enterGuessingGame', userLobby.gameState);
+          io.to(user.id).emit('enterGuessingGame');
+        });
+      }
+    }
+  });
+
+  socket.on("connectedGuessingGame", (id) => {
+    const userLobby = allLobbys.find(lobby =>
+      lobby.some(user => user.id === id)
+    );
+
+    userLobby.gameState.connected += 1;
+
+    if(userLobby.gameState.connected == userLobby.length){
+      var currentDrawerId = userLobby[userLobby.gameState.currentDrawerIndex].id;
+      io.to(currentDrawerId).emit("getWord", userLobby.gameState.word)
+
+      userLobby.forEach(user => {
+        if(user.id != currentDrawerId){
+          io.to(user.id).emit("getWordLength", userLobby.gameState.word.length);
+        }
+      });
+    }
+  });
+
+  socket.on("submitGuess", (guess, username, id) => {
+    const userLobby = allLobbys.find(lobby =>
+      lobby.some(user => user.id === id)
+    );
+
+    if (userLobby && userLobby.gameState) {
+      if (userLobby.gameState.word.toLowerCase() == guess.toLowerCase()) {
+        userLobby.gameState.scores[id] += 10;
+
+        let message = username + " guest it!";
+
+        io.to(id).emit("guessedIt", userLobby.gameState.word);
+
+        userLobby.forEach(user => {
+          io.to(user.id).emit('lobbyPlayers', userLobby, userLobby.gameState);
+          io.to(user.id).emit('addMessage', message);
+        });
+      }
+      else{
+        let message = username + ": " + guess;
+        userLobby.forEach(user => {
+          io.to(user.id).emit('addMessage', message);
         });
       }
     }
@@ -199,43 +261,6 @@ io.on('connection', (socket) => {
       });
     }
   });
-
-  // socket.on("submitGuess", (guess) => {
-  //   const userLobby = allLobbys.find(lobby =>
-  //     lobby.some(user => user.id === socket.id)
-  //   );
-
-  //   if (userLobby && userLobby.gameState) {
-  //     const currentDrawer = userLobby[userLobby.gameState.currentDrawerIndex];
-
-  //     if (guess.correct) {
-  //       userLobby.gameState.scores[socket.id] += 10;
-
-  //       userLobby.forEach(user => {
-  //         io.to(user.id).emit('scoreUpdated', userLobby.gameState.scores);
-  //       });
-
-  //       if (Object.values(userLobby.gameState.scores).length === userLobby.length - 1) {
-  //         userLobby.gameState.currentDrawerIndex = (userLobby.gameState.currentDrawerIndex + 1) % userLobby.length;
-
-  //         if (userLobby.gameState.currentDrawerIndex === 0) {
-  //           userLobby.gameState.currentRound++;
-
-  //           if (userLobby.gameState.currentRound > userLobby.gameState.totalRounds) {
-  //             const winners = Object.keys(userLobby.gameState.scores).sort((a, b) => userLobby.gameState.scores[b] - userLobby.gameState.scores[a]);
-  //             userLobby.forEach(user => {
-  //               io.to(user.id).emit('gameEnded', { winners, scores: userLobby.gameState.scores });
-  //             });
-  //             delete userLobby.gameState;
-  //             return;
-  //           }
-  //         }
-
-  //         io.to(userLobby[userLobby.gameState.currentDrawerIndex].id).emit('yourTurnToDraw');
-  //       }
-  //     }
-  //   }
-  // });
 
   socket.on('disconnect', () => {
     connectedClients = connectedClients.filter(user => user.id !== socket.id);
