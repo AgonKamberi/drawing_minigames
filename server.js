@@ -206,8 +206,13 @@ io.on('connection', (socket) => {
         if(user.id != currentDrawerId){
           io.to(user.id).emit("getWordLength", userLobby.gameState.word.length);
         }
+        io.to(user.id).emit("startTimer", 30);
       });
     }
+  });
+
+  socket.on("finishedRound", (id) => {
+    console.log("Finished lobby: ", id);
   });
 
   socket.on("submitGuess", (guess, username, id) => {

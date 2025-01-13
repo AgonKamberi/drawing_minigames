@@ -204,80 +204,32 @@ function chat(){
   }
 };
 
-// var isLeader = true;
+socket.on("startTimer", (duration) => {
+  const progressCircle = document.querySelector(".progress-circle");
+  const circleRadius = 45;
+  const circleCircumference = 2 * Math.PI * circleRadius;
 
-// if(isLeader == true){
-//   var word=['apple','purple','sun','table','computer','house','car','rocket','alien'];
-  
-//   wordPicker = word[Math.floor(Math.random()*word.length)];
+  progressCircle.style.strokeDasharray = circleCircumference;
+  progressCircle.style.strokeDashoffset = circleCircumference;
 
-//   socket.emit("getWord", wordPicker);
-// }
+  let startTime = null;
 
-// socket.emit("giveWord");
+  function animate(time) {
+    if (!startTime) startTime = time;
+    const elapsed = (time - startTime) / 1000;
 
-// var wordToType;
-// var youGuestIt = false;
+    const progress = Math.max(0, circleCircumference - (elapsed / duration) * circleCircumference);
+    progressCircle.style.strokeDashoffset = progress;
 
-// socket.on("word", word => {
-//   document.getElementById("wordPicker").innerHTML = word;
-//   wordToType = word;
-// });
+    if (elapsed < duration) {
+      requestAnimationFrame(animate);
+    } else {
+      progressCircle.style.strokeDashoffset = 0;
+      if(currentDrawer){
+        socket.emit("finishedRound", id);
+      }
+    }
+  }
 
-// var username = sessionStorage.getItem("storageName");
-// var icon = sessionStorage.getItem("storageIcon");
-// var score;
-
-// var wonPoints = false;
-
-// socket.on('recieve-message', (messageSend) => {
-//   document.getElementById('chatRows').innerHTML += "<span>" + messageSend + "</span> </br>";
-// });
-
-// var lobbyBody;
-
-// socket.on("getAllDivs", getGameDivs => {
-//   playerCount = getGameDivs.length;
-//   document.getElementById("numberOfPlayers").innerHTML = playerCount;
-//   getGameDivs.forEach(element => {
-//     document.querySelector(".lobbyBody").innerHTML += element;
-//   });
-// });
-
-// socket.on("becomeArtist", randomUsername => {
-//   if(username == randomUsername){
-//     canDraw = true;
-//     wordText.style.visibility = "visible";
-//   }
-// });
-
-// function noTime(){
-//   if(canDraw){
-//     socket.emit("removeDivsFromArray");
-//   }
-//   sessionStorage.setItem("storageScore", score);
-//   canDraw = false;
-//   window.location.href = 'http://localhost:5500';
-// }
-
-// socket.emit("retry");
-
-// setTimeout(function() {
-//   socket.emit("giveBodyDiv");
-//   socket.emit("pickRandom");
-// }, 1000);
-
-// socket.emit("pickRandom");
-
-// setTimeout(function() {
-//   $('.lobbyBodyDiv').remove();
-//   socket.emit("giveBodyDiv");
-// }, 2000);
-
-// socket.on("getGameDiv", (sendThisGameBodyDiv) => {
-//   document.querySelector(".lobbyBody").innerHTML += sendThisGameBodyDiv
-// })
-
-// socket.on("canDraw", function(){
-//   canDraw = true;
-// })
+  requestAnimationFrame(animate);
+});
