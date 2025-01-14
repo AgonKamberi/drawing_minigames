@@ -26,6 +26,8 @@ let randomWords = [
   "waterfall", "treehouse", "bridge", "giraffe", "camera", 
   "penguin", "parachute", "kangaroo", "monster", "lighthouse"
 ];
+let guessingGameRoundTimer = 30;
+let guessingGameRounds = 5;
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -177,11 +179,13 @@ io.on('connection', (socket) => {
           currentRound: 1,
           currentDrawerIndex: 0,
           scores: {},
-          totalRounds: 5,
+          totalRounds: guessingGameRounds,
           word: randomWords[Math.floor(Math.random() * randomWords.length)],
           started: false,
           connected: 0
         };
+
+        userLobby.username
 
         userLobby.forEach(user => {
           userLobby.gameState.scores[user.id] = 0;
@@ -201,18 +205,76 @@ io.on('connection', (socket) => {
     if(userLobby.gameState.connected == userLobby.length){
       var currentDrawerId = userLobby[userLobby.gameState.currentDrawerIndex].id;
       io.to(currentDrawerId).emit("getWord", userLobby.gameState.word)
+      userLobby.gameState.started = true;
 
       userLobby.forEach(user => {
         if(user.id != currentDrawerId){
           io.to(user.id).emit("getWordLength", userLobby.gameState.word.length);
         }
-        io.to(user.id).emit("startTimer", 30);
+        io.to(user.id).emit("startTimer", guessingGameRoundTimer);
       });
     }
   });
 
   socket.on("finishedRound", (id) => {
-    console.log("Finished lobby: ", id);
+    const userLobby = allLobbys.find(lobby =>
+      lobby.some(user => user.id === id)
+    );
+
+    if(userLobby.gameState.currentRound != userLobby.gameState.totalRounds){
+      userLobby.gameState.currentRound++;
+      if(userLobby.gameState.currentDrawerIndex != userLobby.length - 1){
+        userLobby.gameState.currentDrawerIndex += 1;
+      }
+      else{
+        userLobby.gameState.currentDrawerIndex = 0;
+      }
+
+      userLobby.gameState.word = randomWords[Math.floor(Math.random() * randomWords.length)]
+
+      var currentDrawerId = userLobby[userLobby.gameState.currentDrawerIndex].id;
+      io.to(currentDrawerId).emit("getWord", userLobby.gameState.word);
+
+      userLobby.forEach(user => {
+        if(user.id != currentDrawerId){
+          io.to(user.id).emit("getWordLength", userLobby.gameState.word.length);
+        }
+        io.to(user.id).emit("startTimer", guessingGameRoundTimer);
+        io.to(user.id).emit("clearCanvas", user.id);
+      });
+    }
+    else{
+      userLobby.forEach(user => {
+        user.gameState = userLobby.gameState;
+      });
+      
+      const idToUsername = userLobby.reduce((acc, player) => {
+          if (player.id && player.username) {
+              acc[player.id] = player.username;
+          }
+          return acc;
+      }, {});
+      
+      const idToIcon = userLobby.reduce((acc, player) => {
+          if (player.id && player.icon) {
+              acc[player.id] = player.icon;
+          }
+          return acc;
+      }, {});
+      
+      const sortedScoresWithNames = Object.entries(userLobby.gameState.scores)
+      .map(([id, score]) => ({
+          username: idToUsername[id] || 'Unknown',
+          score,
+          icon: idToIcon[id] || 'default-avatar.png'
+      }))
+      .filter(entry => entry.username !== 'Unknown')
+      .sort((a, b) => b.score - a.score);
+      
+      userLobby.forEach(user => {
+          io.to(user.id).emit("FinishedGame", sortedScoresWithNames);
+      });
+    }
   });
 
   socket.on("submitGuess", (guess, username, id) => {
@@ -274,7 +336,13 @@ io.on('connection', (socket) => {
       lobby.some(user => user.id === socket.id)
     );
 
-    if (userLobby && userLobby.gameState == null) {
+    if (userLobby) {
+      if(userLobby.gameState != null){
+        if(userLobby.gameState.started == false){
+          return;
+        }
+      }
+
       const userIndex = userLobby.findIndex(user => user.id === socket.id);
       if (userIndex !== -1) {
         userLobby.splice(userIndex, 1);
@@ -286,7 +354,12 @@ io.on('connection', (socket) => {
         }
 
         userLobby.forEach(user => {
-          io.to(user.id).emit("lobbyPlayers", userLobby);
+          if(userLobby.gameState != null){
+            io.to(user.id).emit("lobbyPlayers", userLobby, userLobby.gameState);
+          }
+          else{
+            io.to(user.id).emit("lobbyPlayers", userLobby);
+          }
         });
       } else {
         allLobbys = allLobbys.filter(lobby => lobby !== userLobby);

@@ -2,6 +2,20 @@ const socket = io('http://localhost:3000');
 
 var id = sessionStorage.getItem("id");
 var username = sessionStorage.getItem("username");
+
+if(username == null){
+  console.log(1);
+  fetch("http://localhost/drawing_minigames_be/isLoggedIn.php", {
+      method: "GET",
+      credentials: 'include'
+  })
+  .then(response => response.json())
+  .then(data => {
+      username = data.data.username;
+  })
+  .catch(error => console.error("Error:", error));
+}
+
 var currentDrawer = false;
 var guessedIt = false;
 socket.emit("getLobbyData", id);
@@ -204,6 +218,8 @@ function chat(){
   }
 };
 
+let animationFrameId = null;
+
 socket.on("startTimer", (duration) => {
   const progressCircle = document.querySelector(".progress-circle");
   const circleRadius = 45;
@@ -214,6 +230,11 @@ socket.on("startTimer", (duration) => {
 
   let startTime = null;
 
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+
   function animate(time) {
     if (!startTime) startTime = time;
     const elapsed = (time - startTime) / 1000;
@@ -222,14 +243,57 @@ socket.on("startTimer", (duration) => {
     progressCircle.style.strokeDashoffset = progress;
 
     if (elapsed < duration) {
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     } else {
       progressCircle.style.strokeDashoffset = 0;
-      if(currentDrawer){
+      if (currentDrawer) {
         socket.emit("finishedRound", id);
       }
     }
   }
 
-  requestAnimationFrame(animate);
+  animationFrameId = requestAnimationFrame(animate);
+});
+
+function showLeaderboardModal() {
+  const modal = document.getElementById("leaderboardModal");
+  modal.classList.add("show");
+}
+
+function closeLeaderboardModal() {
+  window.location.href = "../lobby.html";
+}
+
+document.getElementById("closeLeaderboardBtn").addEventListener("click", function() {
+  closeLeaderboardModal();
+});
+
+function updateLeaderboard(sortedScoresWithNames) {
+  const leaderboardList = document.getElementById("leaderboardList");
+  leaderboardList.innerHTML = "";
+
+  sortedScoresWithNames.forEach((player, index) => {
+      const li = document.createElement("li");
+
+      const icon = document.createElement("img");
+      icon.src = `../img/faceIcons/${player.icon}.svg`;
+      icon.classList.add("icon");
+
+      li.innerHTML = `
+        <span class="position">#${index + 1}</span>
+        <span class="player-info">
+          <img src="${icon.src}" alt="${player.username}'s icon" width="100px">
+          </br>
+          <span class="username">${player.username}</span>
+        </span>
+        <span class="score">${player.score}</span>
+      `;
+
+      leaderboardList.appendChild(li);
+  });
+}
+
+socket.on('FinishedGame', (sortedScoresWithNames) => {
+  updateLeaderboard(sortedScoresWithNames);
+  showLeaderboardModal();
 });
