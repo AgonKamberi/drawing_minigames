@@ -123,7 +123,7 @@ io.on('connection', (socket) => {
   
       socket.emit("newId", newId);
     } else {
-      console.error("User not found in any lobby.");
+      console.error("User is not found in any lobby.");
     }
   });
   
