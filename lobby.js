@@ -2,6 +2,9 @@ const socket = io('http://localhost:3000');
 
 var icon;
 let isPartyLeader;
+var currentXp = 0;
+var userId = 0;
+var isLoggedIn = false;
 
 sendData();
 
@@ -20,7 +23,14 @@ function sendData(){
         .then(data => {
             icon = data.data.icon;
             username = data.data.username;
+            currentXp = data.data.xp;
             userDetails = {username, icon, id}
+
+            isLoggedIn = true;
+
+            userId = data.data.id;
+
+            document.getElementById("current-xp").innerHTML = data.data.xp;
 
             if(data.data.is_admin == 0){
                 document.querySelector(".dashboard-link").style.display = "none";
@@ -255,9 +265,96 @@ function enableLobby(){
 function enableGameModes(){
     document.getElementById("chooseGamemode").classList.add("active");
     document.getElementById("chooseIcon").classList.remove("active");
+
+    document.querySelector(".icons-part").classList.remove("active");
+    document.querySelector(".games-part-inner").classList.add("active");
 }
 
 function enableIconPicker(){
     document.getElementById("chooseGamemode").classList.remove("active");
     document.getElementById("chooseIcon").classList.add("active");
+
+    document.querySelector(".games-part-inner").classList.remove("active");
+    document.querySelector(".icons-part").classList.add("active");
 }
+
+const fetchUnlocables = async () => {
+    try {
+        const response = await fetch('http://localhost/drawing_minigames_be/getAllUnlocables.php', {
+            method: 'GET',
+            credentials: 'include',
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            createIcons(data.unlocables);
+        } else {
+            console.error('Error fetching unlocables:', data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+function createIcons(icons) {
+    const unlockableItemsContainer = document.querySelector('.unlockable-items');
+    unlockableItemsContainer.innerHTML = "";
+
+    icons.forEach(icon => {
+        let imageUrl = icon.icon;
+        let xpRequired = icon.xp;
+        const iconElement = document.createElement('div');
+        iconElement.classList.add('unlockable');
+        iconElement.dataset.xp = xpRequired;
+        iconElement.dataset.icon = imageUrl;
+
+        iconElement.innerHTML = `
+            <img src="img/faceIcons/${imageUrl}.svg" alt="${imageUrl}">
+            <span>${xpRequired} XP</span>
+        `;
+
+        iconElement.addEventListener('click', () => {
+            changeIcon(imageUrl);
+        });
+
+        unlockableItemsContainer.appendChild(iconElement);
+    });
+}
+
+function changeIcon(imageUrl) {
+    if(isLoggedIn == true){
+        const payload = {
+            userId: userId,
+            icon: imageUrl
+        };
+    
+        console.log(payload);
+    
+        fetch('http://localhost/drawing_minigames_be/changeIcon.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload),
+            credentials: 'include',
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Icon changed successfully!');
+            } else {
+                console.error('Failed to change icon:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    
+        socket.emit("changeIcon", sessionStorage.getItem("id"), imageUrl);
+    }
+    else{
+        alert("You need to be logged in to access these icons!");
+    }
+}
+
+fetchUnlocables();

@@ -2,9 +2,10 @@ const socket = io('http://localhost:3000');
 
 var id = sessionStorage.getItem("id");
 var username = sessionStorage.getItem("username");
+var isLoggedIn = false;
+var userData = [];
 
 if(username == null){
-  console.log(1);
   fetch("http://localhost/drawing_minigames_be/isLoggedIn.php", {
       method: "GET",
       credentials: 'include'
@@ -12,6 +13,8 @@ if(username == null){
   .then(response => response.json())
   .then(data => {
       username = data.data.username;
+      userData = data.data;
+      isLoggedIn = true;
   })
   .catch(error => console.error("Error:", error));
 }
@@ -297,3 +300,32 @@ socket.on('FinishedGame', (sortedScoresWithNames) => {
   updateLeaderboard(sortedScoresWithNames);
   showLeaderboardModal();
 });
+
+socket.on('GetXp', (xp) => {
+  if (isLoggedIn) {
+    updateXP(xp);
+  }
+});
+
+async function updateXP(xp) {
+  const formData = new FormData();
+  formData.append('xp', xp);
+  formData.append('id', userData.id);
+
+  try {
+    const response = await fetch("http://localhost/drawing_minigames_be/addXP.php", {
+      method: 'POST',
+      body: formData,
+    });
+
+    const textResponse = await response.text();
+    const data = JSON.parse(textResponse);
+
+    if (data.success) {
+    } else {
+      alert('Error updating profile: ' + data.error);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}

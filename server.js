@@ -26,8 +26,8 @@ let randomWords = [
   "waterfall", "treehouse", "bridge", "giraffe", "camera", 
   "penguin", "parachute", "kangaroo", "monster", "lighthouse"
 ];
-let guessingGameRoundTimer = 30;
-let guessingGameRounds = 5;
+let guessingGameRoundTimer = 10;
+let guessingGameRounds = 1;
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -88,6 +88,28 @@ io.on('connection', (socket) => {
 
     socket.emit("onlinePlayers", filteredClients);
   });
+
+  socket.on("changeIcon", (id, icon) => {
+    const lobbyUserExists = allLobbys.find(lobby =>
+      lobby.some(user => user.id === id)
+    );
+
+    const userIndex = connectedClients.findIndex(user => user.id === id);
+
+    if (userIndex !== -1) {
+      connectedClients[userIndex].icon = icon;
+    }
+
+    lobbyUserExists.forEach(user => {
+      if(user.id == id){
+        user.icon = icon;
+      }
+    });
+
+    lobbyUserExists.forEach(user => {
+      io.to(user.id).emit("lobbyPlayers", lobbyUserExists)
+    });
+  })
 
   socket.on('getPlayersLobby', (id) => {
     const lobbyUserExists = allLobbys.find(lobby =>
@@ -266,13 +288,18 @@ io.on('connection', (socket) => {
       .map(([id, score]) => ({
           username: idToUsername[id] || 'Unknown',
           score,
-          icon: idToIcon[id] || 'default-avatar.png'
+          icon: idToIcon[id] || 'default-avatar.png',
+          id: id
       }))
       .filter(entry => entry.username !== 'Unknown')
       .sort((a, b) => b.score - a.score);
       
       userLobby.forEach(user => {
           io.to(user.id).emit("FinishedGame", sortedScoresWithNames);
+      });
+
+      sortedScoresWithNames.forEach(user => {
+        io.to(user.id).emit("GetXp", user.score);
       });
     }
   });
@@ -326,6 +353,38 @@ io.on('connection', (socket) => {
       userLobby.forEach(user => {
         io.to(user.id).emit("clearCanvas", user.id);
       });
+    }
+  });
+
+  socket.on('kickPlayer', (kickedUserId) => {
+    const userLobby = allLobbys.find(lobby =>
+      lobby.some(user => user.id === socket.id)
+    );
+  
+    if (userLobby) {
+      const partyLeader = userLobby.find(user => user.partyLeader);
+      if (partyLeader && partyLeader.id === socket.id) {
+        const kickedUser = userLobby.find(user => user.id === kickedUserId);
+        if (kickedUser) {
+          userLobby.splice(userLobby.indexOf(kickedUser), 1);
+  
+          io.to(kickedUser.id).emit('kicked');
+  
+          userLobby.forEach(user => {
+            io.to(user.id).emit('lobbyPlayers', userLobby);
+          });
+  
+          if (userLobby.length === 0) {
+            allLobbys = allLobbys.filter(lobby => lobby !== userLobby);
+          }
+  
+          kickedUser.partyLeader = true;
+          const newLobby = [kickedUser];
+          allLobbys.push(newLobby);
+  
+          io.to(kickedUser.id).emit('newLobbyCreated', newLobby);
+        }
+      }
     }
   });
 

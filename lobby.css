@@ -245,3 +245,101 @@ body{
     margin-top: 10px;
     font-weight: bold;
 }
+#playButton {
+    background-image: url(img/guessingGameIcon.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 200px;
+    height: 150px;
+    margin: 20px;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+}
+#playButton:hover {
+    box-shadow: 0px 0px 10px #15fff3;
+}
+.details-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 14px;
+    text-align: center;
+    padding: 10px;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+#playButton:hover .details-text {
+    opacity: 1;
+    transform: translateY(0);
+}
+.icons-part{
+    display: none;
+}
+.games-part-inner{
+    display: none;
+}
+.games-part-inner.active{
+    display: block;
+}
+.icons-part.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    border-radius: 0 0 12px 12px;
+    overflow-y: auto;
+}
+.xp-display {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+}
+.unlockable-items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    height: 100%;
+}
+.unlockable {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 140px;
+    background: linear-gradient(145deg, #5cffa6, #47d09e);
+    border-radius: 12px;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2), -2px -2px 5px rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.unlockable:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3), -3px -3px 8px rgba(255, 255, 255, 0.2);
+}
+.unlockable img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+    border-radius: 50%;
+    border: 5px solid rgba(255, 255, 255, 0.8);
+}
+.unlockable span {
+    font-size: 14px;
+    color: #ffffff;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}

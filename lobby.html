@@ -31,7 +31,19 @@
                     <button id="chooseIcon" class="chooseIcon" onclick="enableIconPicker()">Customize Icon</button>
                 </div>
                 <div class="second-main-part">
-                    <button id="playButton" class="btn btn-primary" onclick="startGuessingGame()">Play</button>
+                    <div class="games-part-inner active">
+                        <button id="playButton" class="btn btn-primary" onclick="startGuessingGame()">
+                            <span class="details-text">Start Guessing Game</span>
+                        </button>
+                    </div>
+                    <div class="icons-part">
+                        <div class="xp-display">
+                            <span>Current XP: </span>
+                            <span id="current-xp">0</span>
+                        </div>
+                        <div class="unlockable-items">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
