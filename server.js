@@ -26,8 +26,8 @@ let randomWords = [
   "waterfall", "treehouse", "bridge", "giraffe", "camera", 
   "penguin", "parachute", "kangaroo", "monster", "lighthouse"
 ];
-let guessingGameRoundTimer = 10;
-let guessingGameRounds = 1;
+let guessingGameRoundTimer = 30;
+let guessingGameRounds = 5;
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
